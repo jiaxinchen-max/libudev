@@ -1,0 +1,4 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+
+option('tests', type : 'feature', value : 'auto', description : 'enable tests')
+option('examples', type : 'feature', value : 'auto', description : 'enable examples')
