@@ -4,6 +4,7 @@
 #include "libudev.h"
 #include "libudev-private.h"
 
+#define _GNU_SOURCE
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -116,6 +117,83 @@ struct udev_device *udev_device_new_from_syspath(struct udev *udev, const char *
         udev_device->is_initialized = 1;
         
         return udev_device;
+}
+
+/**
+ * udev_device_new_from_subsystem_sysname:
+ * @udev: udev library context
+ * @subsystem: the subsystem of the device
+ * @sysname: the name of the device
+ *
+ * Create new udev device, and fill in information from the sys
+ * device and the udev database entry.
+ *
+ * Returns: a new udev device, or #NULL, if it does not exist
+ */
+struct udev_device *udev_device_new_from_subsystem_sysname(struct udev *udev, const char *subsystem, const char *sysname) {
+        struct udev_device *udev_device;
+        
+        if (!udev || !subsystem || !sysname)
+                return NULL;
+
+        udev_device = calloc(1, sizeof(struct udev_device));
+        if (!udev_device)
+                return NULL;
+
+        udev_device->refcount = 1;
+        udev_device->udev = udev_ref(udev);
+        udev_device->sysname = strdup(sysname);
+        
+        /* Create a mock syspath */
+        if (asprintf(&udev_device->syspath, "/sys/class/%s/%s", subsystem, sysname) < 0) {
+                udev_device->syspath = strdup("/sys/devices/virtual/input/unknown");
+        }
+        
+        /* Set some default properties based on subsystem */
+        udev_list_init(&udev_device->properties_list);
+        if (strcmp(subsystem, "input") == 0) {
+                udev_list_entry_add(&udev_device->properties_list, "ID_INPUT", "1");
+                udev_list_entry_add(&udev_device->properties_list, "ID_INPUT_KEYBOARD", "1");
+                udev_list_entry_add(&udev_device->properties_list, "ID_INPUT_MOUSE", "1");
+                udev_list_entry_add(&udev_device->properties_list, "SUBSYSTEM", "input");
+        }
+        
+        return udev_device;
+}
+
+/**
+ * udev_device_new_from_device_id:
+ * @udev: udev library context
+ * @id: text string identifying a kernel device
+ *
+ * Create new udev device, and fill in information from the sys
+ * device and the udev database entry.
+ *
+ * Returns: a new udev device, or #NULL, if it does not exist
+ */
+struct udev_device *udev_device_new_from_device_id(struct udev *udev, const char *id) {
+        (void)udev;  /* unused */
+        (void)id;    /* unused */
+        
+        /* For Termux, we don't support device ID lookup */
+        return NULL;
+}
+
+/**
+ * udev_device_new_from_environment:
+ * @udev: udev library context
+ *
+ * Create new udev device, and fill in information from the current
+ * process environment. This only works reliable if the process
+ * is called from a udev rule.
+ *
+ * Returns: a new udev device, or #NULL, if it does not exist
+ */
+struct udev_device *udev_device_new_from_environment(struct udev *udev) {
+        (void)udev;  /* unused */
+        
+        /* For Termux, we don't support environment-based device creation */
+        return NULL;
 }
 
 /**
