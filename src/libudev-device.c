@@ -374,3 +374,99 @@ struct udev_device *udev_device_get_parent_with_subsystem_devtype(struct udev_de
         /* For Termux, we don't have real parent devices, return NULL */
         return NULL;
 }
+
+/**
+ * udev_device_has_tag:
+ * @udev_device: udev device
+ * @tag: tag name
+ *
+ * Check if a given device has a certain tag associated.
+ *
+ * Returns: 1 if the tag is found. 0 otherwise.
+ */
+int udev_device_has_tag(struct udev_device *udev_device, const char *tag) {
+        (void)tag;  /* unused */
+        
+        if (!udev_device)
+                return 0;
+
+        /* For Termux, we don't have real tags, always return 0 */
+        return 0;
+}
+
+/**
+ * udev_device_has_current_tag:
+ * @udev_device: udev device
+ * @tag: tag name
+ *
+ * Check if a given device has a certain tag associated.
+ *
+ * Returns: 1 if the tag is found. 0 otherwise.
+ */
+int udev_device_has_current_tag(struct udev_device *udev_device, const char *tag) {
+        (void)tag;  /* unused */
+        
+        if (!udev_device)
+                return 0;
+
+        /* For Termux, we don't have real tags, always return 0 */
+        return 0;
+}
+
+/**
+ * udev_device_get_devlinks_list_entry:
+ * @udev_device: udev device
+ *
+ * Retrieve the list of device links pointing to the device file of the
+ * udev device. The next list entry can be retrieved with
+ * udev_list_entry_get_next(), which returns #NULL if no more entries exist.
+ *
+ * Returns: the first entry of the device node link list
+ */
+struct udev_list_entry *udev_device_get_devlinks_list_entry(struct udev_device *udev_device) {
+        if (!udev_device)
+                return NULL;
+        
+        /* For Termux, we don't have real device links, return NULL */
+        return NULL;
+}
+
+/**
+ * udev_device_get_tags_list_entry:
+ * @udev_device: udev device
+ *
+ * Retrieve the list of tags attached to the udev device. The next
+ * list entry can be retrieved with udev_list_entry_get_next(),
+ * which returns #NULL if no more entries exist. The tag string
+ * can be retrieved from the list entry by udev_list_entry_get_name().
+ *
+ * Returns: the first entry of the tag list
+ */
+struct udev_list_entry *udev_device_get_tags_list_entry(struct udev_device *udev_device) {
+        if (!udev_device)
+                return NULL;
+        
+        /* For Termux, we don't have real tags, return NULL */
+        return NULL;
+}
+
+/**
+ * udev_device_set_sysattr_value:
+ * @udev_device: udev device
+ * @sysattr: attribute name
+ * @value: new value to be set
+ *
+ * Update the contents of the sys attribute and the cached value of the device.
+ *
+ * Returns: Negative error code on failure or 0 on success.
+ */
+int udev_device_set_sysattr_value(struct udev_device *udev_device, const char *sysattr, const char *value) {
+        (void)sysattr;  /* unused */
+        (void)value;    /* unused */
+        
+        if (!udev_device)
+                return -1;
+
+        /* For Termux, we don't support setting sysattr values, return success */
+        return 0;
+}
