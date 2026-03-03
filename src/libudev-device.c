@@ -4,8 +4,8 @@
 #include "libudev.h"
 #include "libudev-private.h"
 
-#define _GNU_SOURCE
 #include <errno.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -150,7 +150,7 @@ struct udev_device *udev_device_new_from_subsystem_sysname(struct udev *udev, co
         }
         
         /* Set some default properties based on subsystem */
-        udev_list_init(&udev_device->properties_list);
+        udev_list_init(udev, &udev_device->properties_list, true);
         if (strcmp(subsystem, "input") == 0) {
                 udev_list_entry_add(&udev_device->properties_list, "ID_INPUT", "1");
                 udev_list_entry_add(&udev_device->properties_list, "ID_INPUT_KEYBOARD", "1");
