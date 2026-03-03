@@ -25,28 +25,7 @@ static size_t strscpy(char *dest, size_t size, const char *src) {
         return ret;
 }
 
-static size_t strscpyl(char *dest, size_t size, ...) {
-        va_list ap;
-        char *src;
-        size_t l, len = 0;
-
-        va_start(ap, size);
-        while ((src = va_arg(ap, char *))) {
-                l = strlen(src);
-                if (len + l >= size) {
-                        if (size > 1)
-                                dest[size-1] = '\0';
-                        break;
-                }
-                memcpy(dest + len, src, l);
-                len += l;
-        }
-        va_end(ap);
-        
-        if (len < size)
-                dest[len] = '\0';
-        return len;
-}
+/* Removed strscpyl - not used in simplified implementation */
 
 static bool whitelisted_char_for_devnode(char c, const char *white) {
         if ((c >= '0' && c <= '9') ||
