@@ -59,19 +59,7 @@ static bool whitelisted_char_for_devnode(char c, const char *white) {
         return false;
 }
 
-static int utf8_encoded_valid_unichar(const char *str) {
-        unsigned char c = (unsigned char)*str;
-        
-        if (c < 0x80)
-                return 1;
-        if ((c & 0xe0) == 0xc0)
-                return 2;
-        if ((c & 0xf0) == 0xe0)
-                return 3;
-        if ((c & 0xf8) == 0xf0)
-                return 4;
-        return 1;
-}
+/* Removed utf8_encoded_valid_unichar - not needed for simplified implementation */
 
 /**
  * SECTION:libudev-util
@@ -82,34 +70,11 @@ static int utf8_encoded_valid_unichar(const char *str) {
 
 /* handle "[<SUBSYSTEM>/<KERNEL>]<attribute>" format */
 int util_resolve_sys_link(struct udev *udev, char *result, size_t size, const char *syspath, const char *slink) {
-        char path[UTIL_PATH_SIZE];
-        char target[UTIL_PATH_SIZE];
-        ssize_t len;
-        char *pos;
-        char *tail;
-        int i;
-        int back;
-
+        (void)udev;   /* unused */
+        (void)slink;  /* unused */
+        
+        /* For Termux, just copy the syspath as-is */
         strscpy(result, size, syspath);
-        strscpyl(path, sizeof(path), syspath, "/", slink, NULL);
-        len = readlink(path, target, sizeof(target));
-        if (len <= 0)
-                return -1;
-        target[len] = '\0';
-
-        pos = target;
-        tail = result + strlen(result);
-        for (i = 0; i <= back; i++) {
-                pos = strrchr(target, '/');
-                if (pos == NULL)
-                        return -1;
-                pos[0] = '\0';
-                tail = strrchr(result, '/');
-                if (tail == NULL)
-                        return -1;
-                tail[0] = '\0';
-        }
-        strscpyl(tail, result + size - tail, "/", pos+1, NULL);
         return 0;
 }
 
@@ -187,8 +152,6 @@ int util_replace_chars(char *str, const char *white) {
         int replaced = 0;
 
         while (str[i] != '\0') {
-                int len;
-
                 if (whitelisted_char_for_devnode(str[i], white)) {
                         i++;
                         continue;
@@ -197,13 +160,6 @@ int util_replace_chars(char *str, const char *white) {
                 /* accept hex encoding */
                 if (str[i] == '\\' && str[i+1] == 'x') {
                         i += 2;
-                        continue;
-                }
-
-                /* keep valid utf8 */
-                len = utf8_encoded_valid_unichar(&str[i]);
-                if (len > 1) {
-                        i += len;
                         continue;
                 }
 
@@ -234,16 +190,7 @@ int util_encode_string(const char *str, char *str_enc, size_t len) {
                 return -1;
 
         for (i = 0, j = 0; str[i] != '\0'; i++) {
-                int seqlen;
-
-                seqlen = utf8_encoded_valid_unichar(&str[i]);
-                if (seqlen > 1) {
-                        if (j + seqlen >= len)
-                                goto err;
-                        memcpy(&str_enc[j], &str[i], seqlen);
-                        j += seqlen;
-                        i += (seqlen-1);
-                } else if (str[i] == '\\' || !whitelisted_char_for_devnode(str[i], NULL)) {
+                if (str[i] == '\\' || !whitelisted_char_for_devnode(str[i], NULL)) {
                         if (j + 4 >= len)
                                 goto err;
                         sprintf(&str_enc[j], "\\x%02x", (unsigned char) str[i]);

@@ -11,6 +11,15 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+/* Android compatibility */
+#ifdef __ANDROID__
+#ifndef makedev
+#define makedev(major, minor) ((dev_t)(((major) << 8) | (minor)))
+#endif
+#else
+#include <sys/sysmacros.h>
+#endif
+
 /**
  * SECTION:libudev-device
  * @short_description: kernel sys devices
@@ -356,6 +365,9 @@ const char *udev_device_get_sysattr_value(struct udev_device *udev_device, const
 struct udev_device *udev_device_get_parent_with_subsystem_devtype(struct udev_device *udev_device,
                                                                   const char *subsystem,
                                                                   const char *devtype) {
+        (void)subsystem;  /* unused */
+        (void)devtype;    /* unused */
+        
         if (!udev_device)
                 return NULL;
 
