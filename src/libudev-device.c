@@ -18,7 +18,12 @@
 #define makedev(major, minor) ((dev_t)(((major) << 8) | (minor)))
 #endif
 #else
+#ifdef __linux__
 #include <sys/sysmacros.h>
+#else
+/* Mock makedev for non-Linux systems */
+#define makedev(major, minor) (((major) << 8) | (minor))
+#endif
 #endif
 
 /**
@@ -547,4 +552,22 @@ int udev_device_set_sysattr_value(struct udev_device *udev_device, const char *s
 
         /* For Termux, we don't support setting sysattr values, return success */
         return 0;
+}
+
+/**
+ * udev_device_get_devpath:
+ * @udev_device: udev device
+ *
+ * Retrieve the kernel devpath value of the udev device. The path
+ * does not contain the sys mount point, and starts with a '/'.
+ *
+ * Returns: the devpath of the udev device
+ */
+const char *udev_device_get_devpath(struct udev_device *udev_device)
+{
+    if (!udev_device)
+        return NULL;
+    
+    /* Return a mock devpath for Termux */
+    return "/devices/mock";
 }

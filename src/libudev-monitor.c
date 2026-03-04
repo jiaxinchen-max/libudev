@@ -57,7 +57,11 @@ struct udev_monitor *udev_monitor_new_from_netlink(struct udev *udev, const char
         udev_list_init(udev, &udev_monitor->filter_tag_list, true);
 
         /* For Termux, create a dummy socket */
-        udev_monitor->sock = socket(AF_UNIX, SOCK_DGRAM | SOCK_CLOEXEC, 0);
+        udev_monitor->sock = socket(AF_UNIX, SOCK_DGRAM
+#ifdef SOCK_CLOEXEC
+                                           | SOCK_CLOEXEC
+#endif
+                                           , 0);
         if (udev_monitor->sock < 0) {
                 udev_monitor_unref(udev_monitor);
                 return NULL;

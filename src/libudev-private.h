@@ -8,7 +8,30 @@
 #include <sys/types.h>
 #include <syslog.h>
 #include <sys/socket.h>
+#include <stdint.h>
+
+#ifndef __u32
+#define __u32 uint32_t
+#endif
+/* Mock netlink definitions for non-Linux systems */
+#ifdef __linux__
 #include <linux/netlink.h>
+#else
+/* Mock netlink structures for compatibility */
+struct sockaddr_nl {
+    sa_family_t nl_family;
+    unsigned short nl_pad;
+    pid_t nl_pid;
+    __u32 nl_groups;
+};
+
+#define AF_NETLINK 16
+#define NETLINK_KOBJECT_UEVENT 15
+#define SOL_NETLINK 270
+#define NETLINK_PKTINFO 3
+#define NETLINK_ADD_MEMBERSHIP 1
+#define NETLINK_DROP_MEMBERSHIP 2
+#endif
 
 #include "libudev.h"
 
